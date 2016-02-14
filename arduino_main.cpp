@@ -11,26 +11,47 @@
 
 Servo myServo;
 int pos = 0;
-int scale = 1024 / 180;
 
 void setup() {
   Serial.begin(9600);
-  myServo.attach(9);
+  myServo.attach(3);
+  pinMode(8, OUTPUT);
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
-  int sensorValue = analogRead(A0);
-  float voltage = sensorValue * (5.0 / 1023.0);
-  Serial.println(voltage);
-  
-  myServo.write(sensorValue / scale);
-  delay(5);
-  
-  //for (pos = 0; pos <= 180; pos += 1) {
-  //}
-  //for (pos = 180; pos >= 0; pos -= 1) {
-  //  myServo.write(pos);
-  //  delay(5);
-  //}
+
+  if(Serial.available() > 0)
+  {
+    
+    digitalWrite(8,HIGH);
+    
+    uint8_t c = 0;
+    Serial.readBytes(&c, 1);
+
+    while(pos != c)
+    {
+      if(pos > c)
+      {
+        pos--;
+      }
+      else
+      {
+        pos++;
+      }
+      myServo.write(pos);
+      delay(1);
+      //delayMicroseconds(500);
+    }
+    
+    digitalWrite(8,LOW);
+
+    Serial.flush();
+
+    while(Serial.available() > 0)
+    {
+      Serial.readBytes(&c, 1);
+    }
+    
+  }
 }
